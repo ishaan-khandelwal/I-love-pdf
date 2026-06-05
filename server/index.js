@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import path from 'path'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 import pdfRoutes from './routes/pdfRoutes.js'
 import { supabase } from './lib/supabase.js'
@@ -25,7 +26,12 @@ app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ message: 'API endpoint not found.' })
   }
-  res.sendFile(path.join(__dirname, '../dist', 'index.html'))
+  const distPath = path.join(__dirname, '../dist', 'index.html')
+  if (fs.existsSync(distPath)) {
+    res.sendFile(distPath)
+  } else {
+    res.json({ status: 'ok', message: 'API server is running. Frontend is hosted separately.' })
+  }
 })
 
 app.listen(PORT, () => {
