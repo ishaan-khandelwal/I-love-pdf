@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { getToolById } from '../data/toolData.js'
 import './ToolPage.css'
 
-const API_BASE = '/api/pdf'
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api/pdf'
 
 export default function ToolPage({ toolId, onNavigate }) {
   const tool = getToolById(toolId)
