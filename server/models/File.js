@@ -9,6 +9,7 @@ class FileRecord {
   constructor(data) {
     // Support both snake_case (from Supabase) and camelCase (from new FileRecord({...}))
     this.id = data.id || null
+    this._id = this.id // Explicit property for JSON serialization
     this.originalName = data.original_name ?? data.originalName
     this.path = data.path
     this.size = data.size
