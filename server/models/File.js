@@ -17,9 +17,6 @@ class FileRecord {
     this.createdAt = data.created_at ?? data.createdAt ?? new Date()
   }
 
-  // Mongoose used _id; keep _id as an alias for id so download routes work
-  get _id() { return this.id }
-
   /**
    * Save (insert or update) this record.
    * Returns a FileRecord instance with the saved data (including DB-generated id).
