@@ -64,7 +64,7 @@ router.post('/upload', upload.array('files', 10), async (req, res) => {
 
 router.get('/files', async (_req, res) => {
   try {
-    const files = await File.find().sort({ createdAt: -1 })
+    const files = await File.find()
     res.json({ files })
   } catch (error) {
     res.status(500).json({ message: 'Unable to load files.', error: error.message })

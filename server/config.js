@@ -1,6 +1,5 @@
 import dotenv from 'dotenv'
-
 dotenv.config()
 
-export const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/i-love-pdf'
 export const PORT = process.env.PORT || 5000
+// SUPABASE_URL and SUPABASE_ANON_KEY are loaded directly in server/lib/supabase.js

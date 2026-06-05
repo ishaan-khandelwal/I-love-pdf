@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@pdfsmaller/pdf-encrypt-lite": "^1.0.2",
+    "@supabase/supabase-js": "^2.107.0",
     "cors": "^2.8.5",
     "docx": "^9.7.1",
     "dotenv": "^16.3.1",
