@@ -19,6 +19,7 @@ import {
   pdfToWordHandler,
   pdfToExcelHandler,
   pdfToPptHandler,
+  powerpointToPdfHandler,
   wordToPdfHandler,
   excelToPdfHandler,
 } from './operations/index.js'
@@ -42,7 +43,9 @@ const upload = multer({
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/msword',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/vnd.ms-excel'
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'application/vnd.ms-powerpoint'
     ]
     cb(null, allowed.includes(file.mimetype))
   },
@@ -89,6 +92,7 @@ router.post('/scan-to-pdf', jpgToPdfHandler) // Reuses JPG-to-PDF logic
 router.post('/pdf-to-word', pdfToWordHandler)
 router.post('/pdf-to-excel', pdfToExcelHandler)
 router.post('/pdf-to-powerpoint', pdfToPptHandler)
+router.post('/powerpoint-to-pdf', powerpointToPdfHandler)
 router.post('/word-to-pdf', wordToPdfHandler)
 router.post('/excel-to-pdf', excelToPdfHandler)
 
@@ -113,6 +117,7 @@ router.post('/:tool', async (req, res) => {
     'pdf-to-word',
     'pdf-to-excel',
     'pdf-to-powerpoint',
+    'powerpoint-to-pdf',
     'word-to-pdf',
     'excel-to-pdf',
   ]

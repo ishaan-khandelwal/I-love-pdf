@@ -15,6 +15,7 @@ import aiSummarizerHandler from './aiSummarizer.js'
 import pdfToWordHandler from './pdfToWord.js'
 import pdfToExcelHandler from './pdfToExcel.js'
 import pdfToPptHandler from './pdfToPpt.js'
+import powerpointToPdfHandler from './powerpointToPdf.js'
 import wordToPdfHandler from './wordToPdf.js'
 import excelToPdfHandler from './excelToPdf.js'
 
@@ -36,6 +37,7 @@ export {
   pdfToWordHandler,
   pdfToExcelHandler,
   pdfToPptHandler,
+  powerpointToPdfHandler,
   wordToPdfHandler,
   excelToPdfHandler,
 }

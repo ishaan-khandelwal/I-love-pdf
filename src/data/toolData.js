@@ -122,7 +122,7 @@ export const toolData = [
     category: 'convert',
     color: '#FF7651',
     colorLight: '#F3D9CC',
-    available: false,
+    available: true,
     multiFile: false,
     icon: 'ppt-pdf',
   },

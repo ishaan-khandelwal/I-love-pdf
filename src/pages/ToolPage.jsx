@@ -275,7 +275,8 @@ export default function ToolPage({ toolId, onNavigate }) {
                 accept={
                   ['jpg-to-pdf', 'scan-to-pdf'].includes(toolId) ? 'image/jpeg,image/png' :
                   ['word-to-pdf'].includes(toolId) ? '.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
-                  ['excel-to-pdf'].includes(toolId) ? '.xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
+                  ['excel-to-pdf'].includes(toolId) ? '.xls,.xlsx,application/ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
+                  ['powerpoint-to-pdf'].includes(toolId) ? '.ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation' :
                   'application/pdf'
                 }
                 multiple={tool.multiFile}
