@@ -16,8 +16,17 @@ import pdfToWordHandler from './pdfToWord.js'
 import pdfToExcelHandler from './pdfToExcel.js'
 import pdfToPptHandler from './pdfToPpt.js'
 import powerpointToPdfHandler from './powerpointToPdf.js'
+import editPdfHandler from './editPdf.js'
 import wordToPdfHandler from './wordToPdf.js'
 import excelToPdfHandler from './excelToPdf.js'
+import pdfToJpgHandler from './pdfToJpg.js'
+import redactPdfHandler from './redactPdf.js'
+import pdfFormsHandler from './pdfForms.js'
+import pdfToPdfAHandler from './pdfToPdfA.js'
+import ocrPdfHandler from './ocrPdf.js'
+import comparePdfHandler from './comparePdf.js'
+import translatePdfHandler from './translatePdf.js'
+import signPdfHandler from './signPdf.js'
 
 export {
   mergeHandler,
@@ -38,7 +47,16 @@ export {
   pdfToExcelHandler,
   pdfToPptHandler,
   powerpointToPdfHandler,
+  editPdfHandler,
   wordToPdfHandler,
   excelToPdfHandler,
+  pdfToJpgHandler,
+  redactPdfHandler,
+  pdfFormsHandler,
+  pdfToPdfAHandler,
+  ocrPdfHandler,
+  comparePdfHandler,
+  translatePdfHandler,
+  signPdfHandler,
 }
 

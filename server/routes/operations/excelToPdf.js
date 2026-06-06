@@ -1,13 +1,9 @@
 import fs from 'fs/promises'
 import xlsx from 'xlsx'
 import File from '../../models/File.js'
-import path from 'path'
-import { fileURLToPath } from 'url'
 import { PDFDocument, rgb } from 'pdf-lib'
 import { createOutputFile, embedStandardFont } from '../pdfHelpers.js'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 const normalizeForPdf = (value) =>
   String(value || '')

@@ -1,6 +1,5 @@
 import fs from 'fs/promises'
 import path from 'path'
-import { fileURLToPath } from 'url'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import JSZip from 'jszip'
@@ -9,8 +8,6 @@ import { createOutputFile, embedStandardFont, uploadDir } from '../pdfHelpers.js
 import { PDFDocument, rgb } from 'pdf-lib'
 
 const execFileAsync = promisify(execFile)
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 const supportedExtensions = new Set(['.pptx', '.ppt'])
 const libreOfficeCandidates = process.platform === 'win32'
@@ -83,7 +80,7 @@ const convertPptxToPdfInProcess = async (buffer) => {
   const fontSize = 12
 
   for (let i = 0; i < slides.length; i += 1) {
-    const page = pdfDoc.addPage([pageWidth, pageHeight])
+    let page = pdfDoc.addPage([pageWidth, pageHeight])
     const slideText = `Slide ${i + 1}`
     page.drawText(slideText, { x: margin, y: pageHeight - margin, size: 16, font, color: rgb(0.1, 0.1, 0.1) })
     let y = pageHeight - margin - 32
@@ -109,14 +106,12 @@ const convertPptxToPdfInProcess = async (buffer) => {
 
 const convertPresentationToPdf = async (sourcePath, outputDir) => {
   const args = ['--headless', '--convert-to', 'pdf', '--outdir', outputDir, sourcePath]
-  let lastError = null
 
   for (const command of libreOfficeCandidates) {
     try {
       await execFileAsync(command, args, { windowsHide: true, timeout: 120000 })
       return
     } catch (error) {
-      lastError = error
       if (error.code === 'ENOENT') continue
       throw error
     }
@@ -144,21 +139,17 @@ const powerpointToPdfHandler = async (req, res) => {
     let pdfBytes
 
     if (extension === '.pptx') {
-      try {
-        pdfBytes = await convertPptxToPdfInProcess(fileBuffer)
-      } catch (fallbackError) {
-        // If built-in fallback cannot parse the file, try LibreOffice as a second option
         try {
+          pdfBytes = await convertPptxToPdfInProcess(fileBuffer)
+        } catch {
+          // If built-in fallback cannot parse the file, try LibreOffice as a second option
           const tempDir = path.join(uploadDir, 'tmp')
           await fs.mkdir(tempDir, { recursive: true })
           await convertPresentationToPdf(file.path, tempDir)
           const convertedPath = path.join(tempDir, `${path.basename(file.path, extension)}.pdf`)
           pdfBytes = await fs.readFile(convertedPath)
           await fs.rm(convertedPath, { force: true })
-        } catch (libreError) {
-          throw libreError
         }
-      }
     } else {
       const tempDir = path.join(uploadDir, 'tmp')
       await fs.mkdir(tempDir, { recursive: true })

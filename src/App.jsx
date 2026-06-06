@@ -3,6 +3,7 @@ import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
 import HomePage from './pages/HomePage.jsx'
 import ToolPage from './pages/ToolPage.jsx'
+import EditPdfPage from './pages/EditPdfPage.jsx'
 import './App.css'
 import LoginPage from './pages/LoginPage.jsx'
 import SignupPage from './pages/SignupPage.jsx'
@@ -18,8 +19,15 @@ function getRouteFromHash() {
   }
 
   const hash = window.location.hash
+  if (hash === '#/edit-pdf') {
+    return { page: 'edit', toolId: 'edit-pdf' }
+  }
   if (hash.startsWith('#/tool/')) {
-    return { page: 'tool', toolId: hash.replace('#/tool/', '') }
+    const toolId = hash.replace('#/tool/', '')
+    if (toolId === 'edit-pdf') {
+      return { page: 'edit', toolId }
+    }
+    return { page: 'tool', toolId }
   }
   return { page: 'home', toolId: null }
 }
@@ -42,7 +50,7 @@ export default function App() {
       if (window.location.pathname !== '/') {
         window.history.pushState({}, '', '/')
       }
-      window.location.hash = `#/tool/${toolId}`
+      window.location.hash = toolId === 'edit-pdf' ? '#/edit-pdf' : `#/tool/${toolId}`
     } else {
       window.history.pushState({}, '', '/')
       // Manually set route since empty hash doesn't always fire hashchange
@@ -71,6 +79,8 @@ export default function App() {
       <Header onNavigate={navigate} onNavigateAuth={navigateAuth} />
       {route.page === 'tool' && route.toolId ? (
         <ToolPage toolId={route.toolId} onNavigate={navigate} />
+      ) : route.page === 'edit' && route.toolId === 'edit-pdf' ? (
+        <EditPdfPage onNavigate={navigate} />
       ) : (
         <HomePage onNavigate={navigate} />
       )}

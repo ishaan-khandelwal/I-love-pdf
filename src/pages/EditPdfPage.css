@@ -1,0 +1,457 @@
+/* Interactive PDF Editor Styles */
+
+.edit-pdf-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding-top: var(--header-height);
+  background-color: var(--color-bg);
+  overflow: hidden;
+  color: var(--color-text);
+}
+
+/* Header/Toolbar styling */
+.edit-pdf-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: white;
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.edit-pdf-toolbar__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.edit-pdf-toolbar__back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-alt);
+  color: var(--color-text-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-fast);
+}
+
+.edit-pdf-toolbar__back-btn:hover {
+  background: var(--color-border-light);
+  color: var(--color-text);
+}
+
+.edit-pdf-toolbar__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* Toolbar center controls */
+.edit-pdf-toolbar__center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-bg);
+  padding: 6px 12px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+.edit-pdf-toolbar__tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.edit-pdf-toolbar__tool-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-text);
+}
+
+.edit-pdf-toolbar__tool-btn--active {
+  background: var(--color-edit) !important;
+  color: white !important;
+}
+
+.edit-pdf-toolbar__divider {
+  width: 1px;
+  height: 20px;
+  background-color: var(--color-border);
+}
+
+/* Color and thickness controls */
+.edit-pdf-toolbar__styles {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.edit-pdf-toolbar__colors {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.edit-pdf-toolbar__color-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: 0;
+  display: inline-block;
+}
+
+.edit-pdf-toolbar__color-dot:hover {
+  transform: scale(1.15);
+}
+
+.edit-pdf-toolbar__color-dot--active {
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 2px white inset;
+}
+
+.edit-pdf-toolbar__select {
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: white;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* History / actions */
+.edit-pdf-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.edit-pdf-toolbar__action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--color-bg-alt);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-fast);
+}
+
+.edit-pdf-toolbar__action-btn:hover:not(:disabled) {
+  background: var(--color-border-light);
+  color: var(--color-text);
+}
+
+.edit-pdf-toolbar__action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.edit-pdf-toolbar__action-btn--primary {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.edit-pdf-toolbar__action-btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: white;
+}
+
+/* Dual Pane Layout */
+.edit-pdf-workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Sidebar thumbnails */
+.edit-pdf-sidebar {
+  width: 240px;
+  background: white;
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.edit-pdf-sidebar__title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.edit-pdf-thumbnail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  border: 2px solid transparent;
+  cursor: pointer;
+  background: var(--color-bg);
+  transition: all var(--transition-fast);
+}
+
+.edit-pdf-thumbnail:hover {
+  background: var(--color-border-light);
+  transform: translateY(-1px);
+}
+
+.edit-pdf-thumbnail--active {
+  border-color: var(--color-edit);
+  background: var(--color-primary-light);
+}
+
+.edit-pdf-thumbnail__canvas-wrapper {
+  width: 100%;
+  max-height: 180px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-pdf-thumbnail__canvas-wrapper canvas {
+  width: 100% !important;
+  height: auto !important;
+  display: block;
+}
+
+.edit-pdf-thumbnail__page-num {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* Canvas Canvas area */
+.edit-pdf-canvas-area {
+  flex: 1;
+  background-color: var(--color-bg-alt);
+  overflow-y: auto;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  scroll-behavior: smooth;
+}
+
+.edit-pdf-page-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  padding: 24px;
+  position: relative;
+  transition: box-shadow var(--transition-base);
+}
+
+.edit-pdf-page-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.edit-pdf-page-card__header {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: 8px;
+}
+
+/* Main PDF canvas wrapper */
+.edit-pdf-page-wrapper {
+  position: relative;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #ddd;
+  user-select: none;
+}
+
+.edit-pdf-page-canvas {
+  display: block;
+  pointer-events: none;
+}
+
+/* Annotation overlay layer */
+.edit-pdf-annotation-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  cursor: crosshair;
+  background: transparent;
+  overflow: hidden;
+}
+
+.edit-pdf-annotation-layer--text-tool {
+  cursor: text;
+}
+
+.edit-pdf-annotation-layer--draw-tool {
+  cursor: crosshair;
+}
+
+/* SVG graphics element */
+.edit-pdf-svg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* Drag-and-drop floating Text Box styling */
+.edit-pdf-text-box {
+  position: absolute;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed transparent;
+  user-select: none;
+  cursor: move;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transform: translate(0, 0); /* To fix subpixel rendering issues */
+  white-space: nowrap;
+}
+
+.edit-pdf-text-box:hover {
+  border-color: var(--color-edit);
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.edit-pdf-text-box--selected {
+  border-color: var(--color-edit);
+  border-style: solid;
+  background: rgba(139, 92, 246, 0.08) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.edit-pdf-text-box__content {
+  outline: none;
+  border: none;
+  background: transparent;
+  font-family: var(--font-family);
+  font-weight: 500;
+  padding: 2px 4px;
+  min-width: 40px;
+}
+
+.edit-pdf-text-box__input {
+  border: 1px solid var(--color-border);
+  background: white;
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  outline: none;
+  font-family: var(--font-family);
+}
+
+.edit-pdf-text-box__delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  margin-left: 4px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.edit-pdf-text-box:hover .edit-pdf-text-box__delete,
+.edit-pdf-text-box--selected .edit-pdf-text-box__delete {
+  opacity: 1;
+}
+
+/* Loading/Status animations */
+.edit-pdf-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+  color: var(--color-text-secondary);
+}
+
+.edit-pdf-loading__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-edit);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Compact status block for upload */
+.edit-pdf-page__uploading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.edit-pdf-page__uploading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

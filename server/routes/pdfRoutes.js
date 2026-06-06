@@ -20,8 +20,17 @@ import {
   pdfToExcelHandler,
   pdfToPptHandler,
   powerpointToPdfHandler,
+  editPdfHandler,
   wordToPdfHandler,
   excelToPdfHandler,
+  pdfToJpgHandler,
+  redactPdfHandler,
+  pdfFormsHandler,
+  pdfToPdfAHandler,
+  ocrPdfHandler,
+  comparePdfHandler,
+  translatePdfHandler,
+  signPdfHandler,
 } from './operations/index.js'
 import { saveMetadata, uploadDir } from './pdfHelpers.js'
 
@@ -43,9 +52,7 @@ const upload = multer({
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/msword',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'application/vnd.ms-powerpoint'
+      'application/vnd.ms-excel'
     ]
     cb(null, allowed.includes(file.mimetype))
   },
@@ -93,8 +100,17 @@ router.post('/pdf-to-word', pdfToWordHandler)
 router.post('/pdf-to-excel', pdfToExcelHandler)
 router.post('/pdf-to-powerpoint', pdfToPptHandler)
 router.post('/powerpoint-to-pdf', powerpointToPdfHandler)
+router.post('/edit-pdf', editPdfHandler)
 router.post('/word-to-pdf', wordToPdfHandler)
 router.post('/excel-to-pdf', excelToPdfHandler)
+router.post('/pdf-to-jpg', pdfToJpgHandler)
+router.post('/redact-pdf', redactPdfHandler)
+router.post('/pdf-forms', pdfFormsHandler)
+router.post('/pdf-to-pdfa', pdfToPdfAHandler)
+router.post('/ocr-pdf', ocrPdfHandler)
+router.post('/compare-pdf', comparePdfHandler)
+router.post('/translate-pdf', translatePdfHandler)
+router.post('/sign-pdf', signPdfHandler)
 
 router.post('/:tool', async (req, res) => {
   const tool = req.params.tool
@@ -118,6 +134,7 @@ router.post('/:tool', async (req, res) => {
     'pdf-to-excel',
     'pdf-to-powerpoint',
     'powerpoint-to-pdf',
+    'edit-pdf',
     'word-to-pdf',
     'excel-to-pdf',
   ]

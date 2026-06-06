@@ -23,6 +23,11 @@ export default function ToolPage({ toolId, onNavigate }) {
   const [cropMargins, setCropMargins] = useState('40,40,40,40')
   const [pageOrder, setPageOrder] = useState('1,2')
   const [htmlContent, setHtmlContent] = useState('<h1>Sample Webpage</h1>')
+  const [fillJson, setFillJson] = useState('')
+  const [signerName, setSignerName] = useState('')
+  const [redactionsJson, setRedactionsJson] = useState('[{"page":1,"x":50,"y":150,"width":200,"height":30}]')
+  const [ocrLang, setOcrLang] = useState('eng')
+  const [targetLang, setTargetLang] = useState('en')
 
   if (!tool) {
     return (
@@ -43,6 +48,23 @@ export default function ToolPage({ toolId, onNavigate }) {
       case 'cropMargins': return { cropMargins }
       case 'pageOrder': return { pageOrder }
       case 'htmlContent': return { htmlContent }
+      case 'fillJson': {
+        try {
+          return { fill: JSON.parse(fillJson || '{}') }
+        } catch {
+          return { fill: {} }
+        }
+      }
+      case 'signerName': return { signerName }
+      case 'redactionsJson': {
+        try {
+          return { redactions: JSON.parse(redactionsJson || '[]') }
+        } catch {
+          return { redactions: [] }
+        }
+      }
+      case 'ocrLang': return { lang: ocrLang }
+      case 'targetLang': return { target: targetLang }
       default: return {}
     }
   }
@@ -57,6 +79,11 @@ export default function ToolPage({ toolId, onNavigate }) {
       case 'cropMargins': setCropMargins(value); break
       case 'pageOrder': setPageOrder(value); break
       case 'htmlContent': setHtmlContent(value); break
+      case 'fillJson': setFillJson(value); break
+      case 'signerName': setSignerName(value); break
+      case 'redactionsJson': setRedactionsJson(value); break
+      case 'ocrLang': setOcrLang(value); break
+      case 'targetLang': setTargetLang(value); break
     }
   }
 
@@ -70,6 +97,11 @@ export default function ToolPage({ toolId, onNavigate }) {
       case 'cropMargins': return cropMargins
       case 'pageOrder': return pageOrder
       case 'htmlContent': return htmlContent
+      case 'fillJson': return fillJson
+      case 'signerName': return signerName
+      case 'redactionsJson': return redactionsJson
+      case 'ocrLang': return ocrLang
+      case 'targetLang': return targetLang
       default: return ''
     }
   }
@@ -137,9 +169,19 @@ export default function ToolPage({ toolId, onNavigate }) {
           setStatusMessage('Select at least two PDFs to merge.')
           return
         }
+        if (toolId === 'compare-pdf' && selectedIds.length < 2) {
+          setStatus('error')
+          setStatusMessage('Select exactly two PDFs to compare.')
+          return
+        }
         if (['jpg-to-pdf', 'scan-to-pdf'].includes(toolId) && selectedIds.length < 1) {
           setStatus('error')
           setStatusMessage('Select at least one image to convert.')
+          return
+        }
+        if (selectedIds.length < 1) {
+          setStatus('error')
+          setStatusMessage('Select at least one file for this operation.')
           return
         }
       } else {
@@ -159,7 +201,9 @@ export default function ToolPage({ toolId, onNavigate }) {
       ...(toolId === 'html-to-pdf'
         ? {}
         : tool.multiFile
-          ? { fileIds: selectedIds }
+          ? toolId === 'compare-pdf'
+            ? { fileAId: selectedIds[0], fileBId: selectedIds[1] }
+            : { fileIds: selectedIds }
           : { fileId: selectedIds[0] }),
       ...getOptionValue(),
     }

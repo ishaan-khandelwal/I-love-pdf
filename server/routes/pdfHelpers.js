@@ -24,15 +24,19 @@ export const loadPdf = async (filePath) => {
   return PDFDocument.load(bytes)
 }
 
-export const createOutputFile = async (buffer, label) => {
-  const outputName = `${label}-${Date.now()}.pdf`
+export const createOutputFile = async (
+  buffer,
+  label,
+  { extension = 'pdf', contentType = 'application/pdf' } = {}
+) => {
+  const outputName = `${label}-${Date.now()}.${extension}`
   const outputPath = path.join(uploadDir, outputName)
   await fs.writeFile(outputPath, buffer)
   return new File({
     originalName: outputName,
     path: outputPath,
     size: buffer.length,
-    contentType: 'application/pdf',
+    contentType,
   }).save()
 }
 
