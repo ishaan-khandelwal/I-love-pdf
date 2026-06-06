@@ -45,7 +45,7 @@ export default function LoginPage({ onNavigateAuth, onNavigateHome, onLoginSucce
               <path d="M9 11h6M9 14h6M9 17h4" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
           </span>
-          <span><span>i</span>LovePDF</span>
+          <span>Docloom</span>
         </button>
 
         <div className="auth-brand__copy">

@@ -47,12 +47,12 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const stored = localStorage.getItem('ilovepdf_user')
+    const stored = localStorage.getItem('docloom_user')
     if (stored) {
       try {
         setUser(JSON.parse(stored))
       } catch {
-        localStorage.removeItem('ilovepdf_user')
+        localStorage.removeItem('docloom_user')
       }
     }
   }, [])
@@ -79,15 +79,15 @@ export default function App() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('ilovepdf_user')
-    localStorage.removeItem('ilovepdf_token')
+    localStorage.removeItem('docloom_user')
+    localStorage.removeItem('docloom_token')
     setUser(null)
     navigate(null)
   }
 
   const handleLoginSuccess = (userData, token) => {
-    localStorage.setItem('ilovepdf_user', JSON.stringify(userData))
-    localStorage.setItem('ilovepdf_token', token)
+    localStorage.setItem('docloom_user', JSON.stringify(userData))
+    localStorage.setItem('docloom_token', token)
     setUser(userData)
     navigate(null)
   }

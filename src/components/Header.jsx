@@ -75,7 +75,7 @@ export default function Header({ onNavigate, onNavigateAuth, user, onLogout }) {
             <path d="M10 28V12h6.5c3.5 0 5.5 2 5.5 5s-2 5-5.5 5H14v6h-4zm4-10h2.2c1.3 0 2-.7 2-2s-.7-2-2-2H14v4z" fill="#fff" />
           </svg>
           <span className="header__logo-text">
-            <span className="header__logo-i">i</span>Love<span className="header__logo-pdf">PDF</span>
+            Docloom
           </span>
         </a>
 

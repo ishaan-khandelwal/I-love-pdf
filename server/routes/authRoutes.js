@@ -5,7 +5,7 @@ import crypto from 'crypto'
 const router = express.Router()
 
 function hashPassword(password) {
-  const salt = 'ilovepdf_salt_12345'
+  const salt = 'docloom_salt_12345'
   return crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex')
 }
 
