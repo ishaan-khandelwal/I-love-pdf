@@ -1,14 +1,10 @@
-/**
- * Drop-in Supabase replacement for the Mongoose File model.
- * Exposes the same interface: File.findById(), File.create(), File.find(), instance.save()
- * so that zero changes are needed in any operation file.
- */
-import { supabase } from '../lib/supabase.js'
+import crypto from 'crypto'
+
+const inMemoryFiles = new Map()
 
 class FileRecord {
   constructor(data) {
-    // Support both snake_case (from Supabase) and camelCase (from new FileRecord({...}))
-    this.id = data.id || null
+    this.id = data.id || crypto.randomUUID()
     this._id = this.id // Explicit property for JSON serialization
     this.originalName = data.original_name ?? data.originalName
     this.path = data.path
@@ -19,63 +15,33 @@ class FileRecord {
 
   /**
    * Save (insert or update) this record.
-   * Returns a FileRecord instance with the saved data (including DB-generated id).
+   * Returns a FileRecord instance with the saved data.
    */
   async save() {
-    if (this.id) {
-      // Update existing row
-      const { data, error } = await supabase
-        .from('files')
-        .update({
-          original_name: this.originalName,
-          path: this.path,
-          size: this.size,
-          content_type: this.contentType,
-        })
-        .eq('id', this.id)
-        .select()
-        .single()
-      if (error) throw new Error(`Supabase update error: ${error.message}`)
-      return new FileRecord(data)
-    } else {
-      // Insert new row
-      const { data, error } = await supabase
-        .from('files')
-        .insert({
-          original_name: this.originalName,
-          path: this.path,
-          size: this.size,
-          content_type: this.contentType,
-        })
-        .select()
-        .single()
-      if (error) throw new Error(`Supabase insert error: ${error.message}`)
-      const saved = new FileRecord(data)
-      this.id = saved.id
-      return saved
-    }
+    inMemoryFiles.set(this.id, this)
+    return this
   }
 
   // ─── Static methods (mirrors Mongoose Model statics) ───────────────────────
 
   static async findById(id) {
     if (!id) return null
-    const { data, error } = await supabase
-      .from('files')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle()
-    if (error) throw new Error(`Supabase findById error: ${error.message}`)
-    return data ? new FileRecord(data) : null
+    return inMemoryFiles.get(id) || null
   }
 
-  static async find() {
-    const { data, error } = await supabase
-      .from('files')
-      .select('*')
-      .order('created_at', { ascending: false })
-    if (error) throw new Error(`Supabase find error: ${error.message}`)
-    return (data || []).map((d) => new FileRecord(d))
+  static async find(filter) {
+    let list = Array.from(inMemoryFiles.values())
+    if (filter && filter._id && filter._id.$in) {
+      const ids = filter._id.$in
+      list = list.filter((file) => ids.includes(file.id))
+    }
+    // Order by created_at descending
+    return list.sort((a, b) => b.createdAt - a.createdAt)
+  }
+
+  static deleteById(id) {
+    if (!id) return false
+    return inMemoryFiles.delete(id)
   }
 
   /**
@@ -87,5 +53,25 @@ class FileRecord {
     return record.save()
   }
 }
+
+// Stale files garbage collector (runs every 5 minutes)
+// Purges any in-memory files older than 10 minutes to prevent RAM growth.
+setInterval(() => {
+  const now = Date.now()
+  const cutoff = 10 * 60 * 1000 // 10 minutes
+  for (const file of inMemoryFiles.values()) {
+    const fileTime = file.createdAt instanceof Date ? file.createdAt.getTime() : new Date(file.createdAt).getTime()
+    if (now - fileTime > cutoff) {
+      inMemoryFiles.delete(file.id)
+      
+      // Purge from virtualFs in-memory map
+      import('../virtualFs.js').then(({ memoryStorage }) => {
+        import('path').then((path) => {
+          memoryStorage.delete(path.normalize(file.path))
+        })
+      }).catch((err) => console.error('GC error purging memoryStorage:', err.message))
+    }
+  }
+}, 5 * 60 * 1000)
 
 export default FileRecord

@@ -34,6 +34,7 @@ function getRouteFromHash() {
 
 export default function App() {
   const [route, setRoute] = useState(getRouteFromHash)
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
     const onHashChange = () => setRoute(getRouteFromHash())
@@ -42,6 +43,17 @@ export default function App() {
     return () => {
       window.removeEventListener('hashchange', onHashChange)
       window.removeEventListener('popstate', onHashChange)
+    }
+  }, [])
+
+  useEffect(() => {
+    const stored = localStorage.getItem('ilovepdf_user')
+    if (stored) {
+      try {
+        setUser(JSON.parse(stored))
+      } catch {
+        localStorage.removeItem('ilovepdf_user')
+      }
     }
   }, [])
 
@@ -66,17 +78,31 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('ilovepdf_user')
+    localStorage.removeItem('ilovepdf_token')
+    setUser(null)
+    navigate(null)
+  }
+
+  const handleLoginSuccess = (userData, token) => {
+    localStorage.setItem('ilovepdf_user', JSON.stringify(userData))
+    localStorage.setItem('ilovepdf_token', token)
+    setUser(userData)
+    navigate(null)
+  }
+
   if (route.page === 'login') {
-    return <LoginPage onNavigateAuth={navigateAuth} onNavigateHome={() => navigate(null)} />
+    return <LoginPage onNavigateAuth={navigateAuth} onNavigateHome={() => navigate(null)} onLoginSuccess={handleLoginSuccess} />
   }
 
   if (route.page === 'signup') {
-    return <SignupPage onNavigateAuth={navigateAuth} onNavigateHome={() => navigate(null)} />
+    return <SignupPage onNavigateAuth={navigateAuth} onNavigateHome={() => navigate(null)} onLoginSuccess={handleLoginSuccess} />
   }
 
   return (
     <>
-      <Header onNavigate={navigate} onNavigateAuth={navigateAuth} />
+      <Header onNavigate={navigate} onNavigateAuth={navigateAuth} user={user} onLogout={handleLogout} />
       {route.page === 'tool' && route.toolId ? (
         <ToolPage toolId={route.toolId} onNavigate={navigate} />
       ) : route.page === 'edit' && route.toolId === 'edit-pdf' ? (

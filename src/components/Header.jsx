@@ -37,7 +37,7 @@ function getToolByIdLocal(id) {
   return toolData.find((t) => t.id === id)
 }
 
-export default function Header({ onNavigate, onNavigateAuth }) {
+export default function Header({ onNavigate, onNavigateAuth, user, onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const menuRef = useRef(null)
@@ -128,8 +128,19 @@ export default function Header({ onNavigate, onNavigateAuth }) {
         </div>
 
         <div className="header__actions">
-          <button className="header__login" type="button" id="login-btn" onClick={() => onNavigateAuth('login')}>Log in</button>
-          <button className="header__signup" type="button" id="signup-btn" onClick={() => onNavigateAuth('signup')}>Sign up</button>
+          {user ? (
+            <>
+              <span className="header__user-greeting" style={{ marginRight: '16px', fontWeight: 500, color: '#333' }}>
+                Hi, {user.fullName}!
+              </span>
+              <button className="header__login" type="button" id="logout-btn" onClick={onLogout}>Log out</button>
+            </>
+          ) : (
+            <>
+              <button className="header__login" type="button" id="login-btn" onClick={() => onNavigateAuth('login')}>Log in</button>
+              <button className="header__signup" type="button" id="signup-btn" onClick={() => onNavigateAuth('signup')}>Sign up</button>
+            </>
+          )}
         </div>
 
         <button
@@ -170,8 +181,19 @@ export default function Header({ onNavigate, onNavigateAuth }) {
               </div>
             ))}
             <div className="mobile-menu__auth">
-              <button className="header__login" type="button">Log in</button>
-              <button className="header__signup" type="button">Sign up</button>
+              {user ? (
+                <>
+                  <span className="mobile-menu__user-greeting" style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+                    Hi, {user.fullName}!
+                  </span>
+                  <button className="header__login" type="button" onClick={onLogout}>Log out</button>
+                </>
+              ) : (
+                <>
+                  <button className="header__login" type="button" onClick={() => { setMobileOpen(false); onNavigateAuth('login'); }}>Log in</button>
+                  <button className="header__signup" type="button" onClick={() => { setMobileOpen(false); onNavigateAuth('signup'); }}>Sign up</button>
+                </>
+              )}
             </div>
           </div>
         </div>

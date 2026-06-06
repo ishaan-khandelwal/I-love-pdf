@@ -21,3 +21,20 @@ create policy "Allow all for service" on files
   for all
   using (true)
   with check (true);
+
+-- Users table (stores user credentials and metadata)
+create table if not exists users (
+  id           uuid primary key default gen_random_uuid(),
+  full_name    text not null,
+  email        text unique not null,
+  password     text not null,
+  created_at   timestamptz not null default now()
+);
+
+-- Allow all operations for users (since we use the anon key server-side)
+alter table users enable row level security;
+
+create policy "Allow all for service on users" on users
+  for all
+  using (true)
+  with check (true);

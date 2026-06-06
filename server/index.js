@@ -1,9 +1,11 @@
+import './virtualFs.js'
 import express from 'express'
 import cors from 'cors'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 import pdfRoutes from './routes/pdfRoutes.js'
+import authRoutes from './routes/authRoutes.js'
 import { supabase } from './lib/supabase.js'
 import { PORT } from './config.js'
 
@@ -14,6 +16,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+app.use('/api/auth', authRoutes)
 app.use('/api/pdf', pdfRoutes)
 app.get('/api/health', async (_req, res) => {
   // Verify Supabase connectivity

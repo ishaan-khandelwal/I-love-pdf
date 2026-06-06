@@ -34,13 +34,10 @@ import {
 } from './operations/index.js'
 import { saveMetadata, uploadDir } from './pdfHelpers.js'
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadDir),
-  filename: (_req, file, cb) => {
-    const safeName = file.originalname.replace(/\s+/g, '_')
-    cb(null, `${Date.now()}-${safeName}`)
-  },
-})
+import path from 'path'
+import { memoryStorage as virtualFs } from '../virtualFs.js'
+
+const storage = multer.memoryStorage()
 
 const upload = multer({
   storage,
@@ -65,6 +62,14 @@ router.post('/upload', upload.array('files', 10), async (req, res) => {
     if (!req.files || !req.files.length) {
       return res.status(400).json({ message: 'Upload at least one PDF or image file.' })
     }
+
+    req.files.forEach((file) => {
+      const safeName = file.originalname.replace(/\s+/g, '_')
+      const virtualPath = path.join(uploadDir, `${Date.now()}-${safeName}`)
+      virtualFs.set(path.normalize(virtualPath), file.buffer)
+      file.path = virtualPath
+    })
+
     const savedFiles = await Promise.all(req.files.map(saveMetadata))
     res.json({ files: savedFiles })
   } catch (error) {
@@ -81,36 +86,66 @@ router.get('/files', async (_req, res) => {
   }
 })
 
-router.post('/merge', mergeHandler)
-router.post('/compress', compressHandler)
-router.post('/split', splitHandler)
-router.post('/rotate', rotateHandler)
-router.post('/watermark', watermarkHandler)
-router.post('/page-numbers', pageNumbersHandler)
-router.post('/crop-pdf', cropPdfHandler)
-router.post('/protect-pdf', protectPdfHandler)
-router.post('/unlock-pdf', unlockPdfHandler)
-router.post('/jpg-to-pdf', jpgToPdfHandler)
-router.post('/organize-pdf', organizePdfHandler)
-router.post('/repair-pdf', repairPdfHandler)
-router.post('/html-to-pdf', htmlToPdfHandler)
-router.post('/ai-summarizer', aiSummarizerHandler)
-router.post('/scan-to-pdf', jpgToPdfHandler) // Reuses JPG-to-PDF logic
-router.post('/pdf-to-word', pdfToWordHandler)
-router.post('/pdf-to-excel', pdfToExcelHandler)
-router.post('/pdf-to-powerpoint', pdfToPptHandler)
-router.post('/powerpoint-to-pdf', powerpointToPdfHandler)
-router.post('/edit-pdf', editPdfHandler)
-router.post('/word-to-pdf', wordToPdfHandler)
-router.post('/excel-to-pdf', excelToPdfHandler)
-router.post('/pdf-to-jpg', pdfToJpgHandler)
-router.post('/redact-pdf', redactPdfHandler)
-router.post('/pdf-forms', pdfFormsHandler)
-router.post('/pdf-to-pdfa', pdfToPdfAHandler)
-router.post('/ocr-pdf', ocrPdfHandler)
-router.post('/compare-pdf', comparePdfHandler)
-router.post('/translate-pdf', translatePdfHandler)
-router.post('/sign-pdf', signPdfHandler)
+const cleanUpSourceFiles = (handler) => {
+  return async (req, res, next) => {
+    const { fileId, fileIds, fileAId, fileBId } = req.body
+    const ids = []
+    if (fileId) ids.push(fileId)
+    if (fileAId) ids.push(fileAId)
+    if (fileBId) ids.push(fileBId)
+    if (Array.isArray(fileIds)) ids.push(...fileIds)
+
+    res.on('finish', async () => {
+      // Delay slightly to ensure handlers have fully finished any async reading
+      setTimeout(async () => {
+        for (const id of ids) {
+          try {
+            const file = await File.findById(id)
+            if (file) {
+              virtualFs.delete(path.normalize(file.path))
+              File.deleteById(id)
+            }
+          } catch (err) {
+            console.error('Error cleaning up file:', id, err.message)
+          }
+        }
+      }, 1000)
+    })
+
+    return handler(req, res, next)
+  }
+}
+
+router.post('/merge', cleanUpSourceFiles(mergeHandler))
+router.post('/compress', cleanUpSourceFiles(compressHandler))
+router.post('/split', cleanUpSourceFiles(splitHandler))
+router.post('/rotate', cleanUpSourceFiles(rotateHandler))
+router.post('/watermark', cleanUpSourceFiles(watermarkHandler))
+router.post('/page-numbers', cleanUpSourceFiles(pageNumbersHandler))
+router.post('/crop-pdf', cleanUpSourceFiles(cropPdfHandler))
+router.post('/protect-pdf', cleanUpSourceFiles(protectPdfHandler))
+router.post('/unlock-pdf', cleanUpSourceFiles(unlockPdfHandler))
+router.post('/jpg-to-pdf', cleanUpSourceFiles(jpgToPdfHandler))
+router.post('/organize-pdf', cleanUpSourceFiles(organizePdfHandler))
+router.post('/repair-pdf', cleanUpSourceFiles(repairPdfHandler))
+router.post('/html-to-pdf', cleanUpSourceFiles(htmlToPdfHandler))
+router.post('/ai-summarizer', cleanUpSourceFiles(aiSummarizerHandler))
+router.post('/scan-to-pdf', cleanUpSourceFiles(jpgToPdfHandler)) // Reuses JPG-to-PDF logic
+router.post('/pdf-to-word', cleanUpSourceFiles(pdfToWordHandler))
+router.post('/pdf-to-excel', cleanUpSourceFiles(pdfToExcelHandler))
+router.post('/pdf-to-powerpoint', cleanUpSourceFiles(pdfToPptHandler))
+router.post('/powerpoint-to-pdf', cleanUpSourceFiles(powerpointToPdfHandler))
+router.post('/edit-pdf', cleanUpSourceFiles(editPdfHandler))
+router.post('/word-to-pdf', cleanUpSourceFiles(wordToPdfHandler))
+router.post('/excel-to-pdf', cleanUpSourceFiles(excelToPdfHandler))
+router.post('/pdf-to-jpg', cleanUpSourceFiles(pdfToJpgHandler))
+router.post('/redact-pdf', cleanUpSourceFiles(redactPdfHandler))
+router.post('/pdf-forms', cleanUpSourceFiles(pdfFormsHandler))
+router.post('/pdf-to-pdfa', cleanUpSourceFiles(pdfToPdfAHandler))
+router.post('/ocr-pdf', cleanUpSourceFiles(ocrPdfHandler))
+router.post('/compare-pdf', cleanUpSourceFiles(comparePdfHandler))
+router.post('/translate-pdf', cleanUpSourceFiles(translatePdfHandler))
+router.post('/sign-pdf', cleanUpSourceFiles(signPdfHandler))
 
 router.post('/:tool', async (req, res) => {
   const tool = req.params.tool
@@ -149,6 +184,20 @@ router.get('/download/:id', async (req, res) => {
     const file = await File.findById(req.params.id)
     if (!file) {
       return res.status(404).json({ message: 'File not found.' })
+    }
+    const normPath = path.normalize(file.path)
+    const buffer = virtualFs.get(normPath)
+    if (buffer) {
+      res.setHeader('Content-Type', file.contentType || 'application/octet-stream')
+      res.setHeader('Content-Disposition', `attachment; filename="${file.originalName}"`)
+      res.send(buffer)
+      
+      // Purge processed file immediately after download finishes
+      res.on('finish', () => {
+        virtualFs.delete(normPath)
+        File.deleteById(file.id)
+      })
+      return
     }
     res.download(file.path, file.originalName)
   } catch (error) {
