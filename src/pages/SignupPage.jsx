@@ -88,7 +88,7 @@ export default function SignupPage({ onNavigateAuth, onNavigateHome, onLoginSucc
               <span>Full name</span>
               <input
                 type="text"
-                placeholder="Ish Khandelwal"
+                placeholder="XYZ"
                 autoComplete="name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
