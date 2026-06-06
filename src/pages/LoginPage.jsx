@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import './AuthPage.css'
 
+const BACKEND_URL = import.meta.env.VITE_API_BASE_URL
+  ? import.meta.env.VITE_API_BASE_URL.replace('/api/pdf', '')
+  : ''
+
 export default function LoginPage({ onNavigateAuth, onNavigateHome, onLoginSuccess }) {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
@@ -17,7 +21,7 @@ export default function LoginPage({ onNavigateAuth, onNavigateHome, onLoginSucce
     setError('')
     setLoading(true)
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

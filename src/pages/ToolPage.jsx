@@ -13,6 +13,7 @@ export default function ToolPage({ toolId, onNavigate }) {
   const [downloadUrl, setDownloadUrl] = useState('')
   const [resultName, setResultName] = useState('')
   const [isDragging, setIsDragging] = useState(false)
+  const [compressedSize, setCompressedSize] = useState(null)
   const fileInputRef = useRef(null)
 
   // Option states
@@ -220,6 +221,7 @@ export default function ToolPage({ toolId, onNavigate }) {
       if (data.file?._id) {
         setDownloadUrl(`${API_BASE}/download/${data.file._id}`)
         setResultName(data.file.originalName)
+        setCompressedSize(data.file.size)
       }
       setStatus('done')
       setStatusMessage(`${tool.title} completed successfully!`)
@@ -250,10 +252,42 @@ export default function ToolPage({ toolId, onNavigate }) {
     setStatusMessage('')
     setDownloadUrl('')
     setResultName('')
+    setCompressedSize(null)
   }
 
   return (
     <main className="tool-page" id={`tool-page-${toolId}`}>
+      {/* Full-screen Loader Overlay */}
+      {(status === 'uploading' || status === 'processing') && (
+        <div className="loader-overlay" role="alert" aria-busy="true">
+          <div className="loader-overlay__card">
+            <div className="loader-overlay__visual">
+              <div className="premium-spinner">
+                <div className="premium-spinner__ring" style={{ borderTopColor: tool.color }}></div>
+                <div className="premium-spinner__glow" style={{ boxShadow: `0 0 20px ${tool.color}40` }}></div>
+                <div className="premium-spinner__doc" style={{ color: tool.color }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="8" y1="13" x2="16" y2="13" />
+                    <line x1="8" y1="17" x2="14" y2="17" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <h3 className="loader-overlay__title">
+              {status === 'uploading' ? 'Uploading Files' : 'Processing PDF'}
+            </h3>
+            <p className="loader-overlay__text">
+              {statusMessage || 'Please wait while we prepare your document...'}
+            </p>
+            <div className="loader-overlay__progress-bar">
+              <div className="loader-overlay__progress-fill" style={{ backgroundColor: tool.color }}></div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Colored header bar */}
       <div className="tool-page__header" style={{ backgroundColor: tool.color }}>
         <div className="tool-page__header-inner">
@@ -434,6 +468,53 @@ export default function ToolPage({ toolId, onNavigate }) {
               </div>
               <h2 className="download-section__title">{tool.title} completed!</h2>
               <p className="download-section__name">{resultName || 'Your file is ready'}</p>
+
+              {toolId === 'compress' && compressedSize && (() => {
+                const originalSize = files.reduce((acc, f) => acc + (f.size || 0), 0)
+                const savingsBytes = Math.max(0, originalSize - compressedSize)
+                const savingsPercent = originalSize > 0 ? Math.round((savingsBytes / originalSize) * 100) : 0
+                return (
+                  <div className="compression-stats" id="compression-stats">
+                    <div className="compression-stats__grid">
+                      <div className="compression-stats__card original">
+                        <span className="compression-stats__label">Before</span>
+                        <span className="compression-stats__val">{formatFileSize(originalSize)}</span>
+                      </div>
+                      <div className="compression-stats__arrow" style={{ color: tool.color }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                          <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                      </div>
+                      <div className="compression-stats__card compressed" style={{ borderColor: tool.color }}>
+                        <span className="compression-stats__label">After</span>
+                        <span className="compression-stats__val" style={{ color: tool.color }}>{formatFileSize(compressedSize)}</span>
+                      </div>
+                    </div>
+                    
+                    {savingsBytes > 0 && (
+                      <div className="compression-stats__savings">
+                        <div className="compression-stats__savings-badge">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#16a34a' }}>
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                            <polyline points="17 6 23 6 23 12"></polyline>
+                          </svg>
+                          <span style={{ color: '#16a34a', fontWeight: '600' }}>Saved {savingsPercent}% ({formatFileSize(savingsBytes)})</span>
+                        </div>
+                        <div className="compression-stats__bar-container">
+                          <div 
+                            className="compression-stats__bar-fill" 
+                            style={{ 
+                              width: `${savingsPercent}%`, 
+                              backgroundColor: tool.color 
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
 
               {downloadUrl && (
                 <a
